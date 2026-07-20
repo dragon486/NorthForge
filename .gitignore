@@ -1,0 +1,14 @@
+.vercel
+node_modules/
+dist/
+
+# Python & ELT ignores
+northforge_elt/venv/
+*.pyc
+__pycache__/
+*.duckdb
+*.duckdb.wal
+data/raw/
+northforge_elt/northforge_dbt/target/
+northforge_elt/northforge_dbt/logs/
+northforge_elt/northforge_dbt/dbt_packages/
