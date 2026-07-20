@@ -1,16 +1,23 @@
+import os
 import duckdb
 
-# Connect to DuckDB in memory and query the raw parquet files
-conn = duckdb.connect()
-df = conn.execute("""
-    SELECT 
-        description, 
-        system_source, 
-        port_location, 
-        unit_cost_usd 
-    FROM read_parquet('data/raw/vessel_logs/*/*.parquet')
-""").df()
+def inspect_raw_parquet_lake():
+    lake_pattern = os.path.join("data", "raw", "vessel_logs", "*", "*.parquet")
+    
+    conn = duckdb.connect()
+    df = conn.execute(f"""
+        SELECT 
+            raw_part_id,
+            description, 
+            system_source, 
+            port_location, 
+            unit_cost_usd 
+        FROM read_parquet('{lake_pattern}')
+    """).df()
+    
+    print("\n--- DUCKDB DATA LAKE QUERY RESULT ---")
+    print(df.to_string(index=False))
+    print("-------------------------------------\n")
 
-print("\n--- RAW PARQUET DATA IN DUCKDB DATA LAKE ---")
-print(df)
-print("---------------------------------------------\n")
+if __name__ == "__main__":
+    inspect_raw_parquet_lake()
