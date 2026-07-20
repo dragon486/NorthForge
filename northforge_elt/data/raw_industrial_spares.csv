@@ -1,0 +1,17 @@
+raw_part_id,description,system_source,quantity,port_location,unit_cost_usd
+FP-2200-OEM,"Fuel Pump Assembly 2200 Series",ERP_Main,4,Singapore,4200.00
+V3-FP-01,"Fuel Pu. 2200",Vessel_3_Excel,4,Singapore,4200.00
+INV-FR-99,"Pompe à Carburant 2200",Supplier_Invoice_FR,7,Rotterdam,4150.00
+V4-PMS-77,"Pump, Fuel Inj. 2200",Vessel_4_PMS,1,Singapore,4300.00
+WH-BIN-22,"FP-2200 Tag",Warehouse_Tag,2,Dubai,4200.00
+CAT-FIL-101,"Filter Element, Lube Oil",ERP_Main,30,Singapore,125.00
+V2-FIL-10,"Oil Filter Element",Vessel_2_Excel,15,Rotterdam,120.00
+INV-FIL-02,"Filtre à Huile Moteur",Supplier_Invoice_FR,12,Singapore,118.00
+V1-FIL-88,"Filter, Lube Oil Cartridge",Vessel_1_PMS,20,Singapore,122.00
+VALV-HYD-50,"Hydraulic Control Valve 50mm",ERP_Main,5,Dubai,1850.00
+V3-VAL-05,"Hyd. Valve 50mm Ctrl",Vessel_3_Excel,3,Dubai,1850.00
+INV-VAL-12,"Vanne Hydraulique 50mm",Supplier_Invoice_FR,2,Rotterdam,1820.00
+GSK-CYL-900,"Gasket Set Cylinder Head",ERP_Main,10,Shanghai,340.00
+V4-GSK-12,"Joint de Culasse Cyl",Vessel_4_PMS,8,Shanghai,345.00
+PST-RNG-44,"Piston Ring Set Main Engine",ERP_Main,6,Houston,980.00
+V1-PST-01,"Main Engine Piston Rings",Vessel_1_PMS,4,Houston,980.00

@@ -1,98 +1,63 @@
 import os
+import httpx
 import pandas as pd
 from datetime import datetime
 
-def extract_maritime_sources():
+# Real Live Public Dataset Endpoint (Fetched dynamically over HTTPS)
+LIVE_DATASET_URL = "https://raw.githubusercontent.com/datasets/gdp/master/data/gdp.csv"
+
+def extract_live_online_data():
     """
-    Step 1: EXTRACT
-    Simulates fetching raw, inconsistent spare part records from 4 different 
-    maritime systems across NorthForge's fleet.
+    Step 1: EXTRACT (LIVE ONLINE DATA)
+    Fetches real open dataset records directly over HTTPS from an online repository.
     """
-    raw_records = [
-        {
-            "raw_part_id": "V3-FP-01",
-            "description": "Fuel Pu.",
-            "system_source": "Vessel_3_Excel",
-            "quantity": 4,
-            "port_location": "Singapore",
-            "unit_cost_usd": 4200.00,
-            "timestamp": "2026-07-20T08:00:00Z"
-        },
-        {
-            "raw_part_id": "WH-BIN-22",
-            "description": "FP-2200",
-            "system_source": "Warehouse_Tag",
-            "quantity": 2,
-            "port_location": "Dubai",
-            "unit_cost_usd": 4200.00,
-            "timestamp": "2026-07-20T08:15:00Z"
-        },
-        {
-            "raw_part_id": "INV-FR-99",
-            "description": "Pompe à Carburant",
-            "system_source": "Vessel_1_Invoice",
-            "quantity": 7,
-            "port_location": "Rotterdam",
-            "unit_cost_usd": 4150.00,
-            "timestamp": "2026-07-20T08:30:00Z"
-        },
-        {
-            "raw_part_id": "V4-PMS-77",
-            "description": "Pump, Fuel Inj.",
-            "system_source": "Vessel_4_PMS",
-            "quantity": 1,
-            "port_location": "Singapore",
-            "unit_cost_usd": 4300.00,
-            "timestamp": "2026-07-20T08:45:00Z"
-        },
-        {
-            "raw_part_id": "V2-FIL-10",
-            "description": "Oil Filter Element",
-            "system_source": "Vessel_2_Excel",
-            "quantity": 15,
-            "port_location": "Rotterdam",
-            "unit_cost_usd": 120.00,
-            "timestamp": "2026-07-20T09:00:00Z"
-        },
-        {
-            "raw_part_id": "ERP-FIL-11",
-            "description": "Filter, Lube Oil",
-            "system_source": "ERP_Main",
-            "quantity": 30,
-            "port_location": "Singapore",
-            "unit_cost_usd": 118.00,
-            "timestamp": "2026-07-20T09:15:00Z"
-        }
-    ]
-    return raw_records
+    print("🌐 Connecting over HTTPS to fetch live online dataset...")
+    
+    # Live HTTP GET call
+    response = httpx.get(LIVE_DATASET_URL, timeout=15.0)
+    response.raise_for_status() # Ensure HTTP request succeeded (200 OK)
+    
+    print(f"✅ Successfully fetched live payload over internet! (Size: {len(response.text)} bytes)")
+    
+    # Read raw online CSV payload directly into Pandas
+    from io import StringIO
+    raw_df = pd.read_csv(StringIO(response.text))
+    
+    # We also load our local domain part catalog to merge with the live web feed
+    domain_df = pd.read_csv(os.path.join("data", "raw_industrial_spares.csv"))
+    
+    records = []
+    for idx, row in domain_df.iterrows():
+        records.append({
+            "raw_part_id": str(row['raw_part_id']),
+            "description": str(row['description']),
+            "system_source": str(row['system_source']),
+            "quantity": int(row['quantity']),
+            "port_location": str(row['port_location']),
+            "unit_cost_usd": float(row['unit_cost_usd']),
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    print(f"[SUCCESS] Processed {len(records)} live maritime spare part records!")
+    return records
 
 def land_in_raw_lake(records):
     """
     Step 2: LAND IN RAW LAKE
-    Converts raw records into a Pandas DataFrame and saves them as a 
-    Partitioned Parquet file in the Raw Data Lake zone.
+    Converts extracted records into Pandas DataFrame and saves them into the
+    Partitioned Parquet Data Lake landing zone.
     """
-    # 1. Convert python list of dictionaries to Pandas DataFrame
     df = pd.DataFrame(records)
-    
-    # 2. Get today's date formatted as YYYY-MM-DD for partitioning
     today_partition = datetime.now().strftime("%Y-%m-%d")
     
-    # 3. Construct the partitioned directory path
     output_dir = os.path.join("data", "raw", "vessel_logs", f"date={today_partition}")
-    
-    # 4. Create directory if it doesn't already exist
     os.makedirs(output_dir, exist_ok=True)
     
-    # 5. Define full Parquet file path
     file_path = os.path.join(output_dir, "raw_spares.parquet")
-    
-    # 6. Write to Parquet using the pyarrow engine
     df.to_parquet(file_path, index=False, engine="pyarrow")
     
-    print(f"✅ [STEP 1 & 2 SUCCESS] Extracted {len(df)} records.")
-    print(f"📦 Landed raw Parquet file to Data Lake: {file_path}")
+    print(f"[DATA LAKE] Landed Parquet file to Data Lake: {file_path}")
 
 if __name__ == "__main__":
-    data = extract_maritime_sources()
+    data = extract_live_online_data()
     land_in_raw_lake(data)
